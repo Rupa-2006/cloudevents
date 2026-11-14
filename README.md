@@ -55,7 +55,7 @@ To reset the data, stop the app and delete `instance/events.db`.
 .venv\Scripts\python -m pytest -v
 ```
 
-43 automated test cases cover all four modules and the security measures.
+44 automated test cases cover all four modules and the security measures.
 
 ## Security
 
@@ -86,6 +86,7 @@ Everything is set through environment variables, so the same code runs anywhere.
 | `SECRET_KEY` | Session signing key | generated once and saved next to the database |
 | `COOKIE_SECURE` | `1` on HTTPS hosting so the session cookie is never sent over plain HTTP | off |
 | `TRUST_PROXY` | `1` behind a cloud load balancer, to read the visitor's real address | off |
+| `APP_TIMEZONE` | Time zone for dates and log times (cloud servers run on UTC) | `Asia/Kolkata` |
 
 ## Deploy to the cloud
 
@@ -116,7 +117,7 @@ the development machine.
 app.py                  application (routes, database, seed data)
 templates/              Jinja2 pages
 static/                 style.css (design system), app.js, favicon.svg
-tests/test_app.py       43 automated test cases
+tests/test_app.py       44 automated test cases
 Dockerfile, Procfile,
 render.yaml             cloud deployment
 docs/Project_Report.docx  report for submission (with screenshots)

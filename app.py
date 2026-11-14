@@ -17,6 +17,7 @@ import tempfile
 from contextlib import contextmanager
 from datetime import date, datetime, timedelta
 from functools import wraps
+from zoneinfo import ZoneInfo
 
 import segno
 from flask import (Flask, Response, abort, flash, g, jsonify, redirect,
@@ -29,6 +30,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CATEGORIES = ["Technical", "Workshop", "Cultural", "Sports", "Seminar"]
 DEFAULT_ADMIN_PASSWORD = "admin123"   # sample value, flagged at login until changed
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+# All dates and times use one fixed time zone, so "today", log times and
+# ticket times are right wherever the server runs (cloud servers use UTC).
+APP_TZ = ZoneInfo(os.environ.get("APP_TIMEZONE", "Asia/Kolkata"))
 EVENTS_PER_PAGE = 9
 LOGS_PER_PAGE = 25
 
@@ -101,11 +105,11 @@ SELECT r.*, e.title, e.venue, e.event_date, e.event_time, e.category, u.name, u.
 
 
 def now():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.now(APP_TZ).strftime("%Y-%m-%d %H:%M:%S")
 
 
 def today():
-    return date.today().isoformat()
+    return datetime.now(APP_TZ).date().isoformat()
 
 
 def new_ticket_code():
@@ -276,7 +280,7 @@ def create_app(test_config=None):
                 "event_time, capacity, created_by, created_at) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)",
                 (title, desc, cat, venue,
-                 (date.today() + timedelta(days=days)).isoformat(), time_, cap, now()))
+                 (as_date(today()) + timedelta(days=days)).isoformat(), time_, cap, now()))
         for user_id, event_id in [(2, 1), (2, 2), (3, 1), (3, 4), (2, 6)]:
             db.execute("INSERT INTO registrations (user_id, event_id, ticket_code, "
                        "status, registered_at) VALUES (?, ?, ?, 'confirmed', ?)",
@@ -350,7 +354,7 @@ def create_app(test_config=None):
 
     @app.template_filter("relative_day")
     def relative_day(value):                    # how far away an event is
-        days = (as_date(value) - date.today()).days
+        days = (as_date(value) - as_date(today())).days
         if days < 0:
             return "Ended"
         if days == 0:
@@ -472,7 +476,7 @@ def create_app(test_config=None):
             db = get_db()
             # Count wrong passwords for this account from this IP address
             # inside the lock window, since the last successful login.
-            window_start = (datetime.now() - timedelta(
+            window_start = (datetime.now(APP_TZ) - timedelta(
                 minutes=app.config["LOGIN_LOCK_MINUTES"])).strftime("%Y-%m-%d %H:%M:%S")
             last_ok = db.execute(
                 "SELECT COALESCE(MAX(id), 0) FROM activity_log "
@@ -966,7 +970,7 @@ def create_app(test_config=None):
         finally:
             os.remove(path)
         log("database_backup", f"{len(data)} bytes")
-        name = "events_backup_" + datetime.now().strftime("%Y%m%d_%H%M%S") + ".db"
+        name = "events_backup_" + datetime.now(APP_TZ).strftime("%Y%m%d_%H%M%S") + ".db"
         return send_file(io.BytesIO(data), as_attachment=True, download_name=name,
                          mimetype="application/octet-stream")
 

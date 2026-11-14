@@ -42,7 +42,7 @@ Render blueprint so it can run on a cloud platform."
 | `health`, `api_events` | Cloud service endpoints |
 
 Other files: `templates/` (pages), `static/style.css`, `static/app.js` (confirm
-dialogs and the print button), `tests/test_app.py` (43 tests).
+dialogs and the print button), `tests/test_app.py` (44 tests).
 
 ## 4. Likely questions and answers
 
@@ -162,7 +162,7 @@ Flask's built-in server is for development only. Waitress is a production WSGI s
 that runs the same way on Windows and Linux.
 
 **How did you test it?**
-43 automated tests with pytest. Each test gets a fresh temporary database. They cover
+44 automated tests with pytest. Each test gets a fresh temporary database. They cover
 normal use, validation errors, access control and each security measure. Run
 `python -m pytest -v`.
 

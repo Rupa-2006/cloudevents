@@ -480,6 +480,16 @@ def test_tc43_admin_tools_on_event_page(client):
     assert b'action="/admin/events/1/delete"' in page
 
 
+def test_tc44_times_use_indian_time_zone():
+    from datetime import datetime, timedelta, timezone
+    import app as app_module
+    assert str(app_module.APP_TZ) == "Asia/Kolkata"
+    expected = datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
+    shown = datetime.strptime(app_module.now(), "%Y-%m-%d %H:%M:%S")
+    assert abs((shown - expected.replace(tzinfo=None)).total_seconds()) < 5
+    assert app_module.today() == expected.date().isoformat()
+
+
 def test_tc41_version_1_database_is_migrated(tmp_path):
     path = str(tmp_path / "old.db")
     con = sqlite3.connect(path)

@@ -33,7 +33,7 @@ College events are usually announced on notice boards and registrations are coll
 | Security | Werkzeug password hashing, signed session cookies, CSRF tokens, Content-Security-Policy |
 | QR codes | segno (pure-Python QR generator, rendered as inline SVG) |
 | Front end | HTML5, CSS design system with light and dark themes, inline SVG icons, no external libraries |
-| Testing | pytest with the Flask test client (43 automated test cases) |
+| Testing | pytest with the Flask test client (44 automated test cases) |
 | Deployment | Dockerfile, Procfile and Render blueprint (render.yaml) |
 
 
@@ -139,7 +139,7 @@ One user makes many registrations; one event has many registrations; deleting an
 | Software as a Service (SaaS) | Users need only a browser; nothing is installed on their device |
 | Platform as a Service (PaaS) | Procfile and render.yaml describe the service for Render / Railway |
 | Containerisation | Dockerfile packages the app and its dependencies into a portable image that runs as a non-root user |
-| Configuration through environment | HOST, PORT, DATABASE_PATH, SECRET_KEY, COOKIE_SECURE and TRUST_PROXY are read from environment variables |
+| Configuration through environment | HOST, PORT, DATABASE_PATH, SECRET_KEY, COOKIE_SECURE, TRUST_PROXY and APP_TIMEZONE are read from environment variables |
 | Persistent storage | Database file sits on a mounted volume, separate from the disposable container |
 | Database service | Relational schema with constraints, indexes, transactions and a schema migration |
 | Authentication and access control | Hashed passwords, sessions, role-based authorisation, login lockout |
@@ -154,7 +154,7 @@ One user makes many registrations; one event has many registrations; deleting an
 
 ## 8. Test Cases
 
-All cases are automated in tests/test_app.py and run with the command python -m pytest -v. Result: 43 passed. The pages were also checked by hand in a browser at desktop and phone width.
+All cases are automated in tests/test_app.py and run with the command python -m pytest -v. Result: 44 passed. The pages were also checked by hand in a browser at desktop and phone width.
 
 | ID | Area | Test case | Expected result | Status |
 |---|---|---|---|---|
@@ -201,6 +201,7 @@ All cases are automated in tests/test_app.py and run with the command python -m 
 | TC41 | Database | Start the app on a version 1 database | Table is migrated, existing rows kept, no re-seeding | Pass |
 | TC42 | Auth | Change email with wrong password, invalid and taken addresses, then a valid one | Errors shown; then old email fails and the new one logs in | Pass |
 | TC43 | Admin | Open an event page as guest, student and admin | Edit, Attendees and Delete buttons shown only to the admin | Pass |
+| TC44 | Cloud | Read the app clock on a server running in UTC | Times and today's date follow Indian Standard Time | Pass |
 
 
 ## 9. Screenshots
@@ -279,9 +280,9 @@ All cases are automated in tests/test_app.py and run with the command python -m 
 
 *Figure 19. Output of /health (top) and /api/events (bottom)*
 
-![Test run output – 43 passed (rendered from the saved pytest output)](screenshots/17_test_run.png)
+![Test run output – 44 passed (rendered from the saved pytest output)](screenshots/17_test_run.png)
 
-*Figure 20. Test run output – 43 passed (rendered from the saved pytest output)*
+*Figure 20. Test run output – 44 passed (rendered from the saved pytest output)*
 
 
 ## 10. Deployment
@@ -309,7 +310,7 @@ The application is deployed on Render, a Platform-as-a-Service cloud, on the fre
 7. Show user management, the activity log filter and the database backup.
 8. Open /health and /api/events.
 9. Security: enter a wrong password five times to trigger the lockout; open /admin as a normal user to show the 403 page.
-10. Run python -m pytest -v to show 43 passing tests.
+10. Run python -m pytest -v to show 44 passing tests.
 
 
 ## 12. Limitations and Future Work
@@ -322,5 +323,5 @@ The application is deployed on Render, a Platform-as-a-Service cloud, on the fre
 
 ## 13. Conclusion
 
-The system delivers the complete event life-cycle – publish, register, wait-list, ticket, check in and monitor – as a cloud-ready web service. It demonstrates authentication and access control, persistent storage, health monitoring, audit logging, backup, a REST API and container packaging, and it is defended against the common web attacks listed in section 6, with 43 automated tests as evidence.
+The system delivers the complete event life-cycle – publish, register, wait-list, ticket, check in and monitor – as a cloud-ready web service. It demonstrates authentication and access control, persistent storage, health monitoring, audit logging, backup, a REST API and container packaging, and it is defended against the common web attacks listed in section 6, with 44 automated tests as evidence.
 

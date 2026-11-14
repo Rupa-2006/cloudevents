@@ -13,7 +13,7 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.10
-      - key: TZ
+      - key: APP_TIMEZONE
         value: Asia/Kolkata
       - key: HOST
         value: 0.0.0.0
