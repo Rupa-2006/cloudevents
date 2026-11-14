@@ -44,8 +44,8 @@
         <span class="seats-label">
           {%- if state == 'ended' %}{{ icon('clock') }}Registration closed
           {%- elif state == 'full' %}{{ icon('hourglass') }}Fully booked
-          {%- elif state == 'low' %}{{ icon('alert') }}Only {{ left }} seats left
-          {%- else %}{{ icon('check-circle') }}{{ left }} seats available{% endif -%}
+          {%- elif state == 'low' %}{{ icon('alert') }}Only {{ left }} seat{{ '' if left == 1 else 's' }} left
+          {%- else %}{{ icon('check-circle') }}{{ left }} seat{{ '' if left == 1 else 's' }} available{% endif -%}
         </span>
         <span class="seats-cap">{{ event.booked }} booked of {{ event.capacity }}</span>
       </div>

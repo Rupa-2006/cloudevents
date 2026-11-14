@@ -64,7 +64,7 @@
       {%- if state == 'ended' %}{{ icon('clock') }}Event ended
       {%- elif state == 'full' %}{{ icon('hourglass') }}Full{% if e.waiting %} · {{ e.waiting }} waiting{% endif %}
       {%- elif state == 'low' %}{{ icon('alert') }}Only {{ left }} left
-      {%- else %}{{ icon('check-circle') }}{{ left }} seats left{% endif -%}
+      {%- else %}{{ icon('check-circle') }}{{ left }} seat{{ '' if left == 1 else 's' }} left{% endif -%}
     </span>
     <span class="seats-cap">{{ e.booked }}/{{ e.capacity }}</span>
   </div>

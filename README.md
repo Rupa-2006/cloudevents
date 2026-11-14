@@ -105,9 +105,10 @@ docker build -t cloudevents .
 docker run -p 8000:8000 -v cloudevents-data:/data cloudevents
 ```
 
-Status: production mode (Waitress server, secure cookie, proxy headers) was tested
-locally. The Docker image has not been built, because Docker is not installed on the
-development machine, and the app has not yet been published to a cloud URL.
+Status: **live at <https://cloudevents.onrender.com>** on Render's free plan, deployed
+from the GitHub repository with `render.yaml`. Pushing to the `main` branch redeploys it
+automatically. The Docker image has not been built, because Docker is not installed on
+the development machine.
 
 ## Project layout
 

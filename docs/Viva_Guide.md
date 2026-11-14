@@ -60,8 +60,15 @@ The application itself is SaaS for its users. It is designed to be deployed on a
 such as Render, where the platform provides the servers, HTTPS and scaling.
 
 **Is it deployed?**
-It has been run locally in production mode. The deployment files are ready; publishing
-it needs a hosting account. (If you deploy it, say so and give the URL.)
+Yes, at https://cloudevents.onrender.com on Render's free plan. The code is on GitHub
+(Rupa-2006/cloudevents); Render reads `render.yaml`, installs the requirements and starts
+the app. Every push to the `main` branch redeploys it automatically, which is continuous
+deployment.
+
+**Why does the live site take a while to open sometimes?**
+The free plan puts the service to sleep after about 15 minutes without visitors, and
+the first request wakes it up. For the same reason the free plan has no permanent disk,
+so data resets to the sample data when the service restarts.
 
 **Why SQLite and not a cloud database?**
 It needs no server or paid service, which suits a mini-project and the "no paid

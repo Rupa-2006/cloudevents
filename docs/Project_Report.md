@@ -286,14 +286,16 @@ All cases are automated in tests/test_app.py and run with the command python -m 
 
 ## 10. Deployment
 
-The application has been run and tested locally in production mode (Waitress server, secure cookie, proxy headers). The files needed for cloud hosting are included; publishing it needs the student's own hosting account.
+The application is deployed on Render, a Platform-as-a-Service cloud, on the free plan. The source code is kept in a GitHub repository, and Render builds and starts the service from the render.yaml blueprint. Every push to the main branch triggers an automatic redeploy (continuous deployment). The live site was checked from outside: HTTPS is enforced, the health check reports the database as up, the security headers are present and the session cookie is marked Secure.
 
 - Local: python app.py, then open http://localhost:5000.
 - Container: docker build -t cloudevents . then docker run -p 8000:8000 -v cloudevents-data:/data cloudevents. (The image could not be built on the development machine because Docker is not installed.)
-- Render (free plan): push the folder to GitHub, choose New > Blueprint and select the repository; render.yaml sets the start command, health check, secret key and secure-cookie settings.
-- On Render's free plan the disk is temporary, so data added after deployment is reset when the service restarts; the sample data is re-created each time.
+- Render (free plan): the GitHub repository is connected through New > Blueprint; render.yaml sets the start command, health check, generated secret key, secure-cookie, proxy and time-zone settings.
+- On Render's free plan the disk is temporary, so data added after deployment is reset when the service restarts; the sample data is re-created each time. The free service also sleeps after about 15 minutes without visitors, so the first request afterwards takes up to a minute.
 
-**Live URL:** ____________________________ (fill in after deploying)
+**Live URL:** https://cloudevents.onrender.com
+
+**Source code:** https://github.com/Rupa-2006/cloudevents
 
 
 ## 11. Demonstration Script (about 6 minutes)
@@ -312,7 +314,7 @@ The application has been run and tested locally in production mode (Waitress ser
 
 ## 12. Limitations and Future Work
 
-- The application is not yet hosted on a public cloud URL (see section 10).
+- The free hosting plan has no permanent disk and sleeps when idle (see section 10); a paid plan or a managed database would remove both limits.
 - SQLite limits the service to one server; a managed PostgreSQL database would allow several.
 - No email or SMS is sent for confirmations, waiting-list promotions or password resets.
 - Possible extensions: event posters in object storage, paid tickets, attendance certificates, two-factor login for admins.
