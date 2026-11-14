@@ -1,0 +1,23 @@
+# Render blueprint: New > Blueprint > pick this repository. Free plan only.
+# Note: the free plan has no persistent disk, so the SQLite file (and any data
+# added after deployment) is reset whenever the service restarts or redeploys.
+# The sample data is re-created automatically each time.
+services:
+  - type: web
+    name: cloudevents
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+      - key: HOST
+        value: 0.0.0.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: COOKIE_SECURE
+        value: "1"
+      - key: TRUST_PROXY
+        value: "1"

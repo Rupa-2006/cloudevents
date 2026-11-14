@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, datebadge, seat_state, csrf with context %}
+{% block title %}{{ event.title }}{% endblock %}
+{% block content %}
+{% set left = event.capacity - event.booked %}
+{% set state = seat_state(event) %}
+<a class="backlink" href="{{ url_for('index') }}">{{ icon('arrow-left') }}All events</a>
+
+<div class="detail cat-{{ event.category|lower }}">
+  <div class="detail-main">
+    <header class="detail-banner">
+      <span class="chip chip-glass">{{ event.category }}</span>
+      <h1>{{ event.title }}</h1>
+      <ul class="banner-meta">
+        <li>{{ icon('calendar') }}{{ event.event_date|nice_date }}</li>
+        <li>{{ icon('clock') }}{{ event.event_time|nice_time }}</li>
+        <li>{{ icon('pin') }}{{ event.venue }}</li>
+      </ul>
+    </header>
+
+    <section class="card prose">
+      <h2>About this event</h2>
+      <p>{{ event.description }}</p>
+      <dl class="facts">
+        <div><dt>Date</dt><dd>{{ event.event_date|nice_date }}</dd></div>
+        <div><dt>Starts</dt><dd>{{ event.event_time|nice_time }}</dd></div>
+        <div><dt>Venue</dt><dd>{{ event.venue }}</dd></div>
+        <div><dt>Capacity</dt><dd>{{ event.capacity }} seats</dd></div>
+      </dl>
+    </section>
+  </div>
+
+  <aside class="card booking" aria-label="Registration">
+    <div class="booking-when">
+      {{ datebadge(event.event_date) }}
+      <div>
+        <strong>{{ event.event_date|nice_date }}</strong>
+        <span>{{ event.event_time|nice_time }} · {{ event.event_date|relative_day }}</span>
+      </div>
+    </div>
+
+    <div class="booking-seats seats-{{ state }}">
+      <div class="seats-row">
+        <span class="seats-label">
+          {%- if state == 'ended' %}{{ icon('clock') }}Registration closed
+          {%- elif state == 'full' %}{{ icon('hourglass') }}Fully booked
+          {%- elif state == 'low' %}{{ icon('alert') }}Only {{ left }} seats left
+          {%- else %}{{ icon('check-circle') }}{{ left }} seats available{% endif -%}
+        </span>
+        <span class="seats-cap">{{ event.booked }} booked of {{ event.capacity }}</span>
+      </div>
+      <progress class="bar" value="{{ event.booked }}" max="{{ event.capacity }}" aria-label="{{ event.booked }} of {{ event.capacity }} seats booked"></progress>
+      {% if event.waiting %}<p class="waiting-note">{{ icon('users') }}{{ event.waiting }} on the waiting list</p>{% endif %}
+    </div>
+
+    <div class="booking-actions">
+    {% if registration and registration.status == 'confirmed' %}
+      <div class="notice tone-ok">{{ icon('check-circle') }}<span>You're registered. Ticket <strong>{{ registration.ticket_code }}</strong></span></div>
+      <a class="btn btn-primary btn-lg btn-block" href="{{ url_for('ticket', code=registration.ticket_code) }}">{{ icon('ticket') }}View e-ticket</a>
+      {% if state != 'ended' %}
+      <form method="post" action="{{ url_for('cancel_registration', reg_id=registration.id) }}"
+            data-confirm="Cancel your registration for this event? Your seat will be given to someone else.">
+        {{ csrf() }}
+        <button class="btn btn-danger btn-block">{{ icon('x-circle') }}Cancel registration</button>
+      </form>
+      {% endif %}
+    {% elif registration and registration.status == 'waitlisted' %}
+      <div class="notice tone-warn">{{ icon('hourglass') }}<span>You are number <strong>{{ position }}</strong> on the waiting list. You get a seat automatically if someone cancels.</span></div>
+      <form method="post" action="{{ url_for('cancel_registration', reg_id=registration.id) }}"
+            data-confirm="Leave the waiting list for this event?">
+        {{ csrf() }}
+        <button class="btn btn-danger btn-block">{{ icon('x-circle') }}Leave waiting list</button>
+      </form>
+    {% elif state == 'ended' %}
+      <div class="notice tone-muted">{{ icon('info') }}<span>This event is over. Browse upcoming events to find your next one.</span></div>
+      <a class="btn btn-secondary btn-block" href="{{ url_for('index') }}">{{ icon('calendar') }}Upcoming events</a>
+    {% elif not current_user %}
+      <a class="btn btn-primary btn-lg btn-block" href="{{ url_for('login', next=request.path) }}">{{ icon('login') }}Log in to {{ 'join the waiting list' if state == 'full' else 'register' }}</a>
+      <p class="hint">New here? <a href="{{ url_for('register') }}">Create a free account</a></p>
+    {% else %}
+      {% if state == 'full' %}
+      <div class="notice tone-warn">{{ icon('info') }}<span>This event is full. Join the waiting list and you get a seat automatically if someone cancels.</span></div>
+      {% endif %}
+      <form method="post" action="{{ url_for('register_for_event', event_id=event.id) }}">
+        {{ csrf() }}
+        <button class="btn btn-primary btn-lg btn-block">{{ icon('hourglass' if state == 'full' else 'ticket') }}{{ 'Join the waiting list' if state == 'full' else 'Register for this event' }}</button>
+      </form>
+      <p class="hint">{{ 'Free · leave the list at any time' if state == 'full' else 'Free · instant QR e-ticket' }}</p>
+    {% endif %}
+    </div>
+
+    {% if current_user and current_user.role == 'admin' %}
+    <div class="admin-tools">
+      <p class="admin-tools-title">{{ icon('shield') }}Admin tools</p>
+      <div class="admin-tools-row">
+        <a class="btn btn-secondary btn-sm" href="{{ url_for('admin_event_edit', event_id=event.id) }}">{{ icon('edit') }}Edit event</a>
+        <a class="btn btn-secondary btn-sm" href="{{ url_for('admin_event_registrations', event_id=event.id) }}">{{ icon('users') }}Attendees</a>
+        <form method="post" action="{{ url_for('admin_event_delete', event_id=event.id) }}"
+              data-confirm="Delete &quot;{{ event.title }}&quot; and all its registrations? This cannot be undone.">
+          {{ csrf() }}
+          <button class="btn btn-danger btn-sm">{{ icon('trash') }}Delete</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

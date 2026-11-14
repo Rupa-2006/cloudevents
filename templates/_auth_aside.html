@@ -1,0 +1,15 @@
+{% from "_macros.html" import icon with context %}
+<aside class="auth-aside">
+  <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark">{{ icon('cloud') }}</span>CloudEvents</a>
+  <div>
+    <h2>Every campus event.<br>One simple account.</h2>
+    <p>Join workshops, hackathons, talks and fests without the paperwork.</p>
+    <ul class="ticks">
+      <li><span class="tick">{{ icon('check') }}</span>Register in a single click</li>
+      <li><span class="tick">{{ icon('ticket') }}</span>Instant QR e-tickets</li>
+      <li><span class="tick">{{ icon('hourglass') }}</span>Automatic waiting list when events fill up</li>
+      <li><span class="tick">{{ icon('shield') }}</span>Your account protected end to end</li>
+    </ul>
+  </div>
+  <p class="auth-foot">23CSC205 Cloud Computing Laboratory · sample data only</p>
+</aside>

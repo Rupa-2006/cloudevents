@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, csrf with context %}
+{% block title %}Sign up{% endblock %}
+{% block content %}
+<div class="auth">
+  {% include "_auth_aside.html" %}
+  <form method="post" class="auth-card">
+    <h1>Create your account</h1>
+    <p class="sub">It takes less than a minute, and it's free.</p>
+    {{ csrf() }}
+    <label class="field"><span>Full name</span>
+      <input name="name" value="{{ name }}" required minlength="2" maxlength="80" autocomplete="name" placeholder="Your name">
+    </label>
+    <label class="field"><span>Email</span>
+      <input type="email" name="email" value="{{ email }}" required maxlength="254" autocomplete="email" placeholder="you@example.com">
+    </label>
+    <div class="field-row cols-2">
+      <label class="field"><span>Password</span>
+        <input type="password" name="password" required minlength="8" autocomplete="new-password">
+      </label>
+      <label class="field"><span>Confirm password</span>
+        <input type="password" name="confirm" required minlength="8" autocomplete="new-password">
+      </label>
+    </div>
+    <p class="field"><small>{{ icon('lock') }} At least 8 characters, with a letter and a number.</small></p>
+    <button class="btn btn-primary btn-lg btn-block">{{ icon('sparkles') }}Create account</button>
+    <p class="auth-switch">Already registered? <a href="{{ url_for('login') }}">Log in</a></p>
+  </form>
+</div>
+{% endblock %}

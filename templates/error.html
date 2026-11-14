@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon with context %}
+{% block title %}{{ code }}{% endblock %}
+{% block content %}
+<div class="error-page">
+  <div class="error-code">{{ code }}</div>
+  <h1>{{ message }}.</h1>
+  <p>{% if code == 404 %}The page may have moved, or the link may be wrong.{% elif code == 403 %}This area needs a different account.{% else %}Please go back and try again.{% endif %}</p>
+  <a class="btn btn-primary" href="{{ url_for('index') }}">{{ icon('arrow-left') }}Back to events</a>
+</div>
+{% endblock %}

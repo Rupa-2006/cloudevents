@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, datebadge, seats, empty, pager as show_pager with context %}
+{% block title %}Browse events{% endblock %}
+
+{% block hero %}
+<section class="hero">
+  <div class="container hero-inner">
+    <p class="eyebrow">{{ icon('sparkles') }}Campus events, all in one place</p>
+    <h1>Find your next <span class="accent">great event</span></h1>
+    <p class="lead">Workshops, hackathons, talks, sports and fests. Register in one click, get a QR ticket instantly, and never miss out when an event fills up.</p>
+
+    <form class="searchbar" method="get" role="search" action="{{ url_for('index') }}">
+      <label class="searchbar-q">{{ icon('search') }}<span class="sr-only">Search events</span>
+        <input type="search" name="q" value="{{ q }}" maxlength="100" placeholder="Search by title, venue or topic">
+      </label>
+      <select name="category" aria-label="Category" data-autosubmit>
+        <option value="">All categories</option>
+        {% for c in categories %}<option {% if c == category %}selected{% endif %}>{{ c }}</option>{% endfor %}
+      </select>
+      <select name="when" aria-label="Date range" data-autosubmit>
+        <option value="upcoming" {% if when == 'upcoming' %}selected{% endif %}>Upcoming</option>
+        <option value="past" {% if when == 'past' %}selected{% endif %}>Past</option>
+        <option value="all" {% if when == 'all' %}selected{% endif %}>All dates</option>
+      </select>
+      <button class="btn btn-primary">{{ icon('search') }}Search</button>
+    </form>
+
+    <div class="chips" aria-label="Filter by category">
+      <a class="chip {{ 'active' if not category }}" href="{{ url_for('index', q=q or None, when=when) }}">All events</a>
+      {% for c in categories %}
+      <a class="chip chip-dot cat-{{ c|lower }} {{ 'active' if c == category }}" href="{{ url_for('index', category=c, q=q or None, when=when) }}">{{ c }}</a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<div class="section-head">
+  <h2>{{ {'past': 'Past events', 'all': 'All events'}.get(when, 'Upcoming events') }}{% if category %} · {{ category }}{% endif %}</h2>
+  <span class="muted">{{ pager.total }} event{{ '' if pager.total == 1 else 's' }}{% if q %} matching “{{ q }}”{% endif %}</span>
+</div>
+
+{% if events %}
+<div class="event-grid">
+  {% for e in events %}
+  <a class="event-card cat-{{ e.category|lower }} {{ 'is-past' if e.event_date < today }}" href="{{ url_for('event_detail', event_id=e.id) }}">
+    <div class="event-card-top">
+      {{ datebadge(e.event_date) }}
+      <div class="tags-col">
+        <span class="chip chip-sm chip-cat">{{ e.category }}</span>
+      </div>
+    </div>
+    <h3>{{ e.title }}</h3>
+    <ul class="meta-list">
+      <li>{{ icon('clock') }}<span>{{ e.event_date|nice_date }} · {{ e.event_time|nice_time }}</span></li>
+      <li>{{ icon('pin') }}<span>{{ e.venue }}</span></li>
+      <li>{{ icon('calendar') }}<span>{{ e.event_date|relative_day }}</span></li>
+    </ul>
+    {{ seats(e) }}
+    <span class="go">{{ icon('arrow-right') }}</span>
+  </a>
+  {% endfor %}
+</div>
+{{ show_pager(pager) }}
+{% else %}
+  {% call empty('search', 'No events found', 'Try a different search word, another category, or include past events.') %}
+    <a class="btn btn-secondary" href="{{ url_for('index') }}">{{ icon('undo') }}Clear filters</a>
+  {% endcall %}
+{% endif %}
+{% endblock %}

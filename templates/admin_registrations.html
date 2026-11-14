@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, seats, csrf with context %}
+{% block title %}Attendees{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+<a class="backlink" href="{{ url_for('admin_dashboard') }}">{{ icon('arrow-left') }}Dashboard</a>
+<div class="page-head cat-{{ event.category|lower }}">
+  <div>
+    <h1>{{ event.title }}</h1>
+    <p>{{ event.event_date|nice_date }} · {{ event.event_time|nice_time }} · {{ event.venue }}</p>
+  </div>
+  <div class="head-actions">
+    <a class="btn btn-secondary" href="{{ url_for('admin_event_edit', event_id=event.id) }}">{{ icon('edit') }}Edit event</a>
+    <a class="btn btn-primary" href="{{ url_for('admin_event_export', event_id=event.id) }}">{{ icon('download') }}Export CSV</a>
+  </div>
+</div>
+
+<section class="stats" aria-label="Event summary">
+  <div class="stat tone-ok"><span class="stat-icon">{{ icon('ticket') }}</span><div><b>{{ event.booked }} / {{ event.capacity }}</b><span>Seats booked</span></div></div>
+  <div class="stat tone-warn"><span class="stat-icon">{{ icon('hourglass') }}</span><div><b>{{ event.waiting }}</b><span>On the waiting list</span></div></div>
+  <div class="stat tone-brand"><span class="stat-icon">{{ icon('scan') }}</span><div><b>{{ regs|selectattr('checked_in_at')|list|length }}</b><span>Checked in</span></div></div>
+</section>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Attendee</th><th>Ticket</th><th>Status</th><th>Registered</th><th>Checked in</th><th><span class="sr-only">Actions</span></th></tr></thead>
+  <tbody>
+  {% for r in regs %}
+    <tr>
+      <td><div class="cell-main"><span class="avatar">{{ r.name|initials }}</span><div><strong>{{ r.name }}</strong><small>{{ r.email }}</small></div></div></td>
+      <td><span class="ticket-code">{{ r.ticket_code }}</span></td>
+      <td><span class="status {{ r.status }}">{{ r.status }}</span></td>
+      <td>{{ r.registered_at }}</td>
+      <td>{% if r.checked_in_at %}<span class="status attended">{{ r.checked_in_at[11:16] }}</span>{% else %}<span class="muted">–</span>{% endif %}</td>
+      <td>
+        <div class="row-actions">
+          {% if r.status == 'confirmed' and not r.checked_in_at %}
+          <a class="btn btn-secondary btn-sm" href="{{ url_for('admin_checkin_ticket', code=r.ticket_code) }}">{{ icon('scan') }}Check in</a>
+          {% endif %}
+          {% if r.status != 'cancelled' %}
+          <form method="post" action="{{ url_for('cancel_registration', reg_id=r.id) }}" class="inline"
+                data-confirm="Cancel the registration of {{ r.name }}?">
+            {{ csrf() }}
+            <button class="icon-btn danger" title="Cancel registration">{{ icon('x-circle') }}<span class="sr-only">Cancel registration of {{ r.name }}</span></button>
+          </form>
+          {% endif %}
+        </div>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="6" class="empty">No registrations yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, csrf with context %}
+{% block title %}{{ 'Edit event' if editing else 'New event' }}{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+<a class="backlink" href="{{ url_for('admin_dashboard') }}">{{ icon('arrow-left') }}Dashboard</a>
+<form method="post" class="card narrow-card wide">
+  <div class="card-icon">{{ icon('edit' if editing else 'plus') }}</div>
+  <h1>{{ 'Edit event' if editing else 'Create an event' }}</h1>
+  <p class="muted">{{ 'Changes are visible to everyone straight away.' if editing else 'It appears on the events page as soon as you save it.' }}</p>
+  {{ csrf() }}
+  <label class="field"><span>Title</span>
+    <input name="title" value="{{ event.title or '' }}" required minlength="3" maxlength="120" placeholder="e.g. Cloud Computing Workshop">
+  </label>
+  <label class="field"><span>Description</span>
+    <textarea name="description" rows="4" required maxlength="2000" placeholder="What will people do or learn?">{{ event.description or '' }}</textarea>
+  </label>
+  <div class="field-row cols-2">
+    <label class="field"><span>Category</span>
+      <select name="category" required>
+        {% for c in categories %}<option {% if c == event.category %}selected{% endif %}>{{ c }}</option>{% endfor %}
+      </select>
+    </label>
+    <label class="field"><span>Venue</span>
+      <input name="venue" value="{{ event.venue or '' }}" required maxlength="120" placeholder="e.g. Seminar Hall A">
+    </label>
+  </div>
+  <div class="field-row cols-3">
+    <label class="field"><span>Date</span><input type="date" name="event_date" value="{{ event.event_date or '' }}" required></label>
+    <label class="field"><span>Start time</span><input type="time" name="event_time" value="{{ event.event_time or '' }}" required></label>
+    <label class="field"><span>Capacity</span><input type="number" name="capacity" min="1" max="100000" value="{{ event.capacity or '' }}" required placeholder="Seats"></label>
+  </div>
+  <div class="form-actions">
+    <a class="btn btn-secondary" href="{{ url_for('admin_dashboard') }}">Cancel</a>
+    <button class="btn btn-primary">{{ icon('check') }}{{ 'Save changes' if editing else 'Create event' }}</button>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, csrf with context %}
+{% block title %}Users{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+<div class="page-head">
+  <div>
+    <h1>Users</h1>
+    <p>{{ users|length }} accounts · {{ users|selectattr('role', 'equalto', 'admin')|list|length }} admins</p>
+  </div>
+</div>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>User</th><th>Role</th><th>Active bookings</th><th>Joined</th><th><span class="sr-only">Actions</span></th></tr></thead>
+  <tbody>
+  {% for u in users %}
+    <tr>
+      <td><div class="cell-main"><span class="avatar">{{ u.name|initials }}</span><div><strong>{{ u.name }}</strong><small>{{ u.email }}</small></div></div></td>
+      <td><span class="status {{ 'admin' if u.role == 'admin' }}">{{ u.role }}</span></td>
+      <td class="num">{{ u.regs }}</td>
+      <td>{{ u.created_at[:10]|nice_date }}</td>
+      <td>
+        <div class="row-actions">
+        {% if u.id == current_user.id %}
+          <span class="muted small">This is you</span>
+        {% else %}
+          <form method="post" action="{{ url_for('admin_user_role', user_id=u.id) }}" class="inline"
+                data-confirm="{{ 'Remove admin rights from ' if u.role == 'admin' else 'Give admin rights to ' }}{{ u.name }}?">
+            {{ csrf() }}
+            <button class="btn btn-secondary btn-sm">{{ icon('shield') }}{{ 'Make user' if u.role == 'admin' else 'Make admin' }}</button>
+          </form>
+          <form method="post" action="{{ url_for('admin_user_delete', user_id=u.id) }}" class="inline"
+                data-confirm="Delete {{ u.name }} and all their registrations? This cannot be undone.">
+            {{ csrf() }}
+            <button class="icon-btn danger" title="Delete user">{{ icon('trash') }}<span class="sr-only">Delete {{ u.name }}</span></button>
+          </form>
+        {% endif %}
+        </div>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

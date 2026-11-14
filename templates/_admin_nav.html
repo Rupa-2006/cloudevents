@@ -1,0 +1,8 @@
+{% from "_macros.html" import icon with context %}
+{% set ep = request.endpoint or '' %}
+<nav class="subnav" aria-label="Admin sections">
+  <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if ep == 'admin_dashboard' or ep.startswith('admin_event') }}">{{ icon('grid') }}Dashboard</a>
+  <a href="{{ url_for('admin_checkin') }}" class="{{ 'active' if ep.startswith('admin_checkin') }}">{{ icon('scan') }}Check-in</a>
+  <a href="{{ url_for('admin_users') }}" class="{{ 'active' if ep.startswith('admin_user') }}">{{ icon('users') }}Users</a>
+  <a href="{{ url_for('admin_logs') }}" class="{{ 'active' if ep == 'admin_logs' }}">{{ icon('activity') }}Activity log</a>
+</nav>

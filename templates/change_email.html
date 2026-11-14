@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, csrf with context %}
+{% block title %}Change email{% endblock %}
+{% block content %}
+<form method="post" class="card narrow-card">
+  <div class="card-icon">{{ icon('mail') }}</div>
+  <h1>Change email</h1>
+  <p class="muted">Current email: {{ current_user.email }}</p>
+  {{ csrf() }}
+  <label class="field"><span>New email</span>
+    <input type="email" name="email" value="{{ email }}" required maxlength="254" autocomplete="email" autofocus placeholder="you@example.com">
+    <small>You will use this address to log in from now on.</small>
+  </label>
+  <label class="field"><span>Current password</span>
+    <input type="password" name="password" required autocomplete="current-password">
+    <small>Needed to confirm it is really you.</small>
+  </label>
+  <div class="form-actions">
+    <a class="btn btn-secondary" href="{{ url_for('index') }}">Cancel</a>
+    <button class="btn btn-primary">{{ icon('check') }}Change email</button>
+  </div>
+</form>
+{% endblock %}

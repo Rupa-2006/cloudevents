@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, datebadge, csrf, empty with context %}
+{% block title %}My registrations{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>My registrations</h1>
+    <p>Your tickets and waiting-list places.</p>
+  </div>
+  <div class="head-actions">
+    <a class="btn btn-secondary" href="{{ url_for('index') }}">{{ icon('search') }}Find events</a>
+  </div>
+</div>
+
+{% if regs %}
+  {% set groups = [('Upcoming', regs|selectattr('event_date', 'ge', today)|list),
+                   ('Past', regs|selectattr('event_date', 'lt', today)|list)] %}
+  {% for group, items in groups if items %}
+  <section class="reg-group">
+    <h2 class="group-title">{{ group }} <span class="count">{{ items|length }}</span></h2>
+    <div class="reg-list">
+      {% for r in items %}
+      <article class="reg reg-{{ r.status }} cat-{{ r.category|lower }}">
+        {{ datebadge(r.event_date) }}
+        <div class="reg-body">
+          <a class="reg-title" href="{{ url_for('event_detail', event_id=r.event_id) }}">{{ r.title }}</a>
+          <div class="reg-meta">
+            <span>{{ icon('clock') }}{{ r.event_date|nice_date }} · {{ r.event_time|nice_time }}</span>
+            <span>{{ icon('pin') }}{{ r.venue }}</span>
+          </div>
+          <div class="reg-tags">
+            <span class="status {{ r.status }}">{{ r.status }}{% if r.status == 'waitlisted' %} #{{ positions[r.id] }}{% endif %}</span>
+            {% if r.checked_in_at %}<span class="status attended">attended</span>{% endif %}
+            {% if r.status == 'confirmed' %}<span class="ticket-code">{{ r.ticket_code }}</span>{% endif %}
+          </div>
+        </div>
+        <div class="reg-actions">
+          {% if r.status == 'confirmed' %}
+          <a class="btn btn-secondary btn-sm" href="{{ url_for('ticket', code=r.ticket_code) }}">{{ icon('ticket') }}Ticket</a>
+          {% endif %}
+          {% if r.status != 'cancelled' and r.event_date >= today %}
+          <form method="post" action="{{ url_for('cancel_registration', reg_id=r.id) }}"
+                data-confirm="{{ 'Cancel your registration for ' ~ r.title ~ '?' if r.status == 'confirmed' else 'Leave the waiting list for ' ~ r.title ~ '?' }}">
+            {{ csrf() }}
+            <button class="btn btn-danger btn-sm">{{ icon('x') }}{{ 'Cancel' if r.status == 'confirmed' else 'Leave list' }}</button>
+          </form>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+{% else %}
+  {% call empty('ticket', 'No registrations yet', 'When you register for an event, your QR ticket appears here.') %}
+    <a class="btn btn-primary" href="{{ url_for('index') }}">{{ icon('search') }}Browse events</a>
+  {% endcall %}
+{% endif %}
+{% endblock %}

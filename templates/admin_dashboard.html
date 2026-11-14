@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, seats, csrf with context %}
+{% block title %}Admin dashboard{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+<div class="page-head">
+  <div>
+    <h1>Admin dashboard</h1>
+    <p>Events, bookings and activity across the service.</p>
+  </div>
+  <div class="head-actions">
+    <a class="btn btn-secondary" href="{{ url_for('admin_backup') }}">{{ icon('database') }}Download backup</a>
+    <a class="btn btn-primary" href="{{ url_for('admin_event_new') }}">{{ icon('plus') }}New event</a>
+  </div>
+</div>
+
+<section class="stats" aria-label="Summary">
+  <div class="stat tone-brand"><span class="stat-icon">{{ icon('calendar') }}</span><div><b>{{ stats.events }}</b><span>Events · {{ stats.upcoming }} upcoming</span></div></div>
+  <div class="stat tone-blue"><span class="stat-icon">{{ icon('users') }}</span><div><b>{{ stats.users }}</b><span>Registered users</span></div></div>
+  <div class="stat tone-ok"><span class="stat-icon">{{ icon('ticket') }}</span><div><b>{{ stats.confirmed }}</b><span>Confirmed bookings</span></div></div>
+  <div class="stat tone-warn"><span class="stat-icon">{{ icon('hourglass') }}</span><div><b>{{ stats.waiting }}</b><span>On waiting lists</span></div></div>
+  <div class="stat tone-bad"><span class="stat-icon">{{ icon('x-circle') }}</span><div><b>{{ stats.cancelled }}</b><span>Cancellations</span></div></div>
+  <div class="stat tone-ok"><span class="stat-icon">{{ icon('scan') }}</span><div><b>{{ stats.checked_in }}</b><span>Checked in</span></div></div>
+  <div class="stat tone-pink"><span class="stat-icon">{{ icon('percent') }}</span><div><b>{{ (stats.confirmed * 100 / stats.seats) | round(1) if stats.seats else 0 }}%</b><span>Seats filled</span></div></div>
+</section>
+
+<section class="block">
+  <div class="block-head"><h2>Events and occupancy</h2><span class="muted small">{{ events|length }} events</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Event</th><th>Date</th><th>Category</th><th>Occupancy</th><th>Waiting</th><th><span class="sr-only">Actions</span></th></tr></thead>
+    <tbody>
+    {% for e in events %}
+      <tr class="cat-{{ e.category|lower }}">
+        <td><div class="cell-main"><span class="cat-dot"></span><div><a href="{{ url_for('event_detail', event_id=e.id) }}">{{ e.title }}</a><small>{{ e.venue }}</small></div></div></td>
+        <td>{{ e.event_date|nice_date }}{% if e.event_date < today %} <span class="status">past</span>{% endif %}</td>
+        <td><span class="chip chip-sm chip-cat">{{ e.category }}</span></td>
+        <td class="occ">{{ seats(e) }}</td>
+        <td class="num">{{ e.waiting or '–' }}</td>
+        <td>
+          <div class="row-actions">
+            <a class="icon-btn" href="{{ url_for('admin_event_registrations', event_id=e.id) }}" title="Attendees">{{ icon('users') }}<span class="sr-only">Attendees of {{ e.title }}</span></a>
+            <a class="icon-btn" href="{{ url_for('admin_event_edit', event_id=e.id) }}" title="Edit">{{ icon('edit') }}<span class="sr-only">Edit {{ e.title }}</span></a>
+            <form method="post" action="{{ url_for('admin_event_delete', event_id=e.id) }}" class="inline"
+                  data-confirm="Delete &quot;{{ e.title }}&quot; and all its registrations? This cannot be undone.">
+              {{ csrf() }}
+              <button class="icon-btn danger" title="Delete">{{ icon('trash') }}<span class="sr-only">Delete {{ e.title }}</span></button>
+            </form>
+          </div>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="empty">No events yet. Create the first one.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<div class="two-col">
+  <section class="card">
+    <div class="block-head"><h2>Bookings by category</h2>{{ icon('chart') }}</div>
+    <div class="hbars">
+      {% for c in by_category %}
+      <div class="hbar cat-{{ c.category|lower }}">
+        <span class="label"><span class="cat-dot"></span>{{ c.category }}</span>
+        <progress class="bar" value="{{ c.n }}" max="{{ max_cat }}" aria-label="{{ c.n }} bookings"></progress>
+        <span class="num">{{ c.n }}</span>
+      </div>
+      {% else %}<p class="empty">No data yet.</p>{% endfor %}
+    </div>
+  </section>
+  <section class="card">
+    <div class="block-head"><h2>Recent activity</h2><a class="link" href="{{ url_for('admin_logs') }}">View all{{ icon('arrow-right') }}</a></div>
+    <ul class="feed">
+    {% for l in recent %}
+      {% set tone = 'tone-bad' if 'failed' in l.action or 'blocked' in l.action or 'deleted' in l.action
+                     else ('tone-warn' if 'waitlist' in l.action or 'cancel' in l.action
+                     else ('tone-ok' if 'registered' in l.action or 'checked_in' in l.action or 'promoted' in l.action
+                     else 'tone-brand')) %}
+      <li>
+        <span class="feed-icon {{ tone }}">{{ icon('activity') }}</span>
+        <div class="feed-text"><code>{{ l.action }}</code> {{ l.details or '' }}<small>{{ l.name or 'guest' }} · {{ l.created_at }}</small></div>
+      </li>
+    {% else %}<li class="empty">Nothing logged yet.</li>{% endfor %}
+    </ul>
+  </section>
+</div>
+{% endblock %}

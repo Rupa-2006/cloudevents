@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, csrf with context %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+<div class="auth">
+  {% include "_auth_aside.html" %}
+  <form method="post" class="auth-card">
+    <h1>Welcome back</h1>
+    <p class="sub">Log in to register for events and see your tickets.</p>
+    {{ csrf() }}
+    <label class="field"><span>Email</span>
+      <input type="email" name="email" value="{{ email }}" required autofocus autocomplete="email" placeholder="you@example.com">
+    </label>
+    <label class="field"><span>Password</span>
+      <input type="password" name="password" required autocomplete="current-password" placeholder="Your password">
+    </label>
+    <button class="btn btn-primary btn-lg btn-block">{{ icon('login') }}Log in</button>
+    <p class="auth-switch">New here? <a href="{{ url_for('register') }}">Create a free account</a></p>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, datebadge, csrf with context %}
+{% block title %}Check-in{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+<div class="page-head">
+  <div>
+    <h1>Ticket check-in</h1>
+    <p>Type the code printed on the ticket, or scan its QR code with a phone that is logged in as an admin.</p>
+  </div>
+</div>
+
+<form method="get" action="{{ url_for('admin_checkin') }}" class="card">
+  <label class="sr-only" for="code">Ticket code</label>
+  <div class="checkin-search">
+    <input id="code" name="code" placeholder="EVT-1A2B3C4D" value="{{ t.ticket_code if t else '' }}"
+           required maxlength="20" autocomplete="off" {% if not t %}autofocus{% endif %}>
+    <button class="btn btn-primary btn-lg">{{ icon('search') }}Find ticket</button>
+  </div>
+</form>
+
+{% if t %}
+<article class="card checkin-result cat-{{ t.category|lower }}">
+  <div class="result-head">
+    {{ datebadge(t.event_date) }}
+    <div>
+      <h2>{{ t.title }}</h2>
+      <p>{{ t.event_date|nice_date }} · {{ t.event_time|nice_time }} · {{ t.venue }}</p>
+    </div>
+  </div>
+  <dl class="facts">
+    <div><dt>Attendee</dt><dd>{{ t.name }}</dd></div>
+    <div><dt>Email</dt><dd>{{ t.email }}</dd></div>
+    <div><dt>Ticket</dt><dd>{{ t.ticket_code }}</dd></div>
+    <div><dt>Status</dt><dd><span class="status {{ t.status }}">{{ t.status }}</span></dd></div>
+    <div><dt>Checked in at</dt><dd>{{ t.checked_in_at or 'Not yet' }}</dd></div>
+  </dl>
+  <div class="booking-actions">
+  {% if t.status == 'confirmed' and not t.checked_in_at %}
+    <form method="post">
+      {{ csrf() }}
+      <button class="btn btn-primary btn-lg btn-block">{{ icon('check-circle') }}Check in {{ t.name }}</button>
+    </form>
+  {% elif t.status != 'confirmed' %}
+    <div class="notice tone-bad">{{ icon('x-circle') }}<span>This ticket is {{ t.status }} and cannot be used for entry.</span></div>
+  {% else %}
+    <div class="notice tone-ok">{{ icon('check-circle') }}<span>This attendee has already been admitted.</span></div>
+  {% endif %}
+  </div>
+</article>
+{% endif %}
+{% endblock %}

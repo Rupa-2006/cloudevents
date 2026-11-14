@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon with context %}
+{% block title %}Ticket {{ t.ticket_code }}{% endblock %}
+{% block content %}
+<div class="ticket-wrap">
+  <a class="backlink" href="{{ url_for('my_registrations') }}">{{ icon('arrow-left') }}My registrations</a>
+
+  <article class="ticket cat-{{ t.category|lower }}">
+    <div class="ticket-main">
+      <div class="ticket-head">
+        <span class="ticket-brand"><span class="brand-mark">{{ icon('cloud') }}</span>CloudEvents</span>
+        <span>
+          <span class="status {{ t.status }}">{{ t.status }}</span>
+          {% if t.checked_in_at %}<span class="status attended">checked in</span>{% endif %}
+        </span>
+      </div>
+      <p class="ticket-kind">E-ticket · {{ t.category }}</p>
+      <h1>{{ t.title }}</h1>
+      <dl class="ticket-facts">
+        <div><dt>Attendee</dt><dd>{{ t.name }}</dd></div>
+        <div><dt>Email</dt><dd>{{ t.email }}</dd></div>
+        <div><dt>Date</dt><dd>{{ t.event_date|nice_date }}</dd></div>
+        <div><dt>Time</dt><dd>{{ t.event_time|nice_time }}</dd></div>
+        <div><dt>Venue</dt><dd>{{ t.venue }}</dd></div>
+        <div><dt>Booked on</dt><dd>{{ t.registered_at }}</dd></div>
+      </dl>
+    </div>
+
+    <div class="ticket-stub">
+      {% if qr %}
+      <div class="qr" role="img" aria-label="QR code for ticket {{ t.ticket_code }}">{{ qr }}</div>
+      <p class="stub-hint">Show this code at the entrance. Staff scan it to check you in.</p>
+      {% else %}
+      <div class="qr-void">{{ icon('x-circle') }}<p>This ticket is not valid for entry.</p></div>
+      {% endif %}
+      <p class="stub-code">{{ t.ticket_code }}</p>
+    </div>
+  </article>
+
+  <div class="ticket-actions no-print">
+    <button type="button" class="btn btn-primary" data-print>{{ icon('printer') }}Print ticket</button>
+    <a class="btn btn-secondary" href="{{ url_for('event_detail', event_id=t.event_id) }}">{{ icon('info') }}Event details</a>
+  </div>
+</div>
+{% endblock %}

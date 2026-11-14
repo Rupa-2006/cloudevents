@@ -1,0 +1,84 @@
+{% from "_macros.html" import icon, csrf with context %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#4338ca">
+  <title>{% block title %}Events{% endblock %} · CloudEvents</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+{% set ep = request.endpoint or '' %}
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark">{{ icon('cloud') }}</span>CloudEvents</a>
+    <input type="checkbox" id="nav-check" class="nav-check">
+    <label for="nav-check" class="nav-toggle" title="Menu">{{ icon('menu') }}<span class="sr-only">Toggle menu</span></label>
+    <nav class="site-nav" aria-label="Main">
+      <a href="{{ url_for('index') }}" class="{{ 'active' if ep in ('index', 'event_detail') }}">{{ icon('calendar') }}Events</a>
+      {% if current_user %}
+        <a href="{{ url_for('my_registrations') }}" class="{{ 'active' if ep in ('my_registrations', 'ticket') }}">{{ icon('ticket') }}My registrations</a>
+        {% if current_user.role == 'admin' %}
+          <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if ep.startswith('admin') }}">{{ icon('grid') }}Admin</a>
+        {% endif %}
+        <details class="user-menu">
+          <summary>
+            <span class="avatar">{{ current_user.name|initials }}</span>
+            <span class="user-name">{{ current_user.name }}</span>
+            {{ icon('chevron-down', 'chev') }}
+          </summary>
+          <div class="menu">
+            <div class="menu-head">
+              <span class="avatar lg">{{ current_user.name|initials }}</span>
+              <div><strong>{{ current_user.name }}</strong><span>{{ current_user.email }}</span></div>
+            </div>
+            <a href="{{ url_for('change_email') }}">{{ icon('mail') }}Change email</a>
+            <a href="{{ url_for('change_password') }}">{{ icon('key') }}Change password</a>
+            <form method="post" action="{{ url_for('logout') }}">
+              {{ csrf() }}
+              <button class="menu-danger">{{ icon('logout') }}Log out</button>
+            </form>
+          </div>
+        </details>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="{{ 'active' if ep == 'login' }}">{{ icon('login') }}Log in</a>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('register') }}">Sign up free</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="toasts" aria-live="polite">
+  {% for category, message in messages %}
+  <div class="toast toast-{{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}"{% if category == 'success' %} data-autohide{% endif %}>
+    {{ icon({'success': 'check-circle', 'error': 'alert', 'warning': 'info'}.get(category, 'info')) }}
+    <div class="toast-msg">{{ message }}</div>
+    <button type="button" class="toast-close" data-dismiss title="Dismiss">{{ icon('x') }}<span class="sr-only">Dismiss</span></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+{% block hero %}{% endblock %}
+<main id="main" class="site-main">
+  <div class="container">
+    {% block content %}{% endblock %}
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <span class="footer-brand">{{ icon('cloud') }}CloudEvents</span>
+    <span>Cloud-Based Event Management and Registration System · 23CSC205 Cloud Computing Laboratory</span>
+    <span>Sample data only</span>
+  </div>
+</footer>
+</body>
+</html>
