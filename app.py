@@ -1,6 +1,6 @@
 """Cloud-Based Event Management and Registration System.
 
-23CSC205 Cloud Computing Laboratory mini-project.
+A cloud-hosted web service for publishing events and taking registrations.
 Flask application with four modules:
   1. Authentication and access control
   2. Event management (admin CRUD, search, filter, pagination)

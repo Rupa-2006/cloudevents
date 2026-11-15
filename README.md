@@ -1,7 +1,6 @@
 # Cloud-Based Event Management and Registration System
 
-Mini-project for **23CSC205 – Cloud Computing Laboratory** (B.Tech III Year I Semester, CSE Cyber Security).
-Student: **Rupa Sree Sompalli** · Roll No. **24691A37D7**
+Created by **Rupa Sree Sompalli** · Live at <https://cloudevents.onrender.com>
 
 A Flask web application where users browse events, register, join a waiting list when an
 event is full, and receive a QR e-ticket, while administrators manage events and users,
@@ -92,8 +91,8 @@ Everything is set through environment variables, so the same code runs anywhere.
 
 **Render (free plan)** – push this folder to a GitHub repository, then in Render choose
 *New → Blueprint* and pick the repository. `render.yaml` sets the build and start
-commands, the health check and the security settings. Stay on the free plan: do not add
-paid services without faculty approval. The free plan has no persistent disk, so data
+commands, the health check and the security settings. It runs on the free
+plan. The free plan has no persistent disk, so data
 added after deployment is reset when the service restarts (the sample data comes back).
 
 **Docker**
