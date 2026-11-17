@@ -3,4 +3,3 @@ instance/
 __pycache__/
 .pytest_cache/
 *.db
-.claude/
